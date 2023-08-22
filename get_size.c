@@ -1,5 +1,6 @@
 #include "main.h"
 
+/*funtion for get_size.c*/
 /**
  * get_size - Calculates the size to cast the argument
  * @format: Formatted string in which to print the arguments
