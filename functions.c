@@ -1,5 +1,6 @@
 #include "main.h"
 
+/*function for functions.c*/
 /************************* PRINT CHAR *************************/
 
 /**
