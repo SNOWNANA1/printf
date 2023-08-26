@@ -1,66 +1,77 @@
-#include "main.h"
+#include 
+#include 
+#include 
+
+#define UNUSED(x) (void)(x)
+#define BUFF_SIZE 1024
+
+#define F_MINUS 1
+#define F_PLUS  2
+#define F_ZERO  4
+#define F_HASH  8
+#define F_SPACE 16
+
+#define S_LONG  2
+#define S_SHORT 1
+
+struct fmt {
+    char fmt;
+    int (*fn)(va_list, char[], int, int, int, int);
+};
 
 void print_buffer(char buffer[], int *buff_ind);
 
-/**
- * _printf - Printf function
- * @format: format.
- * Return: Printed chars.
- */
-int _printf(const char *format, ...)
+int my_printf(const char *format, ...)
 {
-	int i, printed = 0, printed_chars = 0;
-	int flags, width, precision, size, buff_ind = 0;
-	va_list list;
-	char buffer[BUFF_SIZE];
+    if (format == NULL)
+        return -1;
 
-	if (format == NULL)
-		return (-1);
+    va_list args;
+    va_start(args, format);
 
-	va_start(list, format);
+    char buffer[BUFF_SIZE];
+    int buff_ind = 0;
+    int printed_chars = 0;
 
-	for (i = 0; format && format[i] != '\0'; i++)
-	{
-		if (format[i] != '%')
-		{
-			buffer[buff_ind++] = format[i];
-			if (buff_ind == BUFF_SIZE)
-				print_buffer(buffer, &buff_ind);
-			/* write(1, &format[i], 1);*/
-			printed_chars++;
-		}
-		else
-		{
-			print_buffer(buffer, &buff_ind);
-			flags = get_flags(format, &i);
-			width = get_width(format, &i, list);
-			precision = get_precision(format, &i, list);
-			size = get_size(format, &i);
-			++i;
-			printed = handle_print(format, &i, list, buffer,
-				flags, width, precision, size);
-			if (printed == -1)
-				return (-1);
-			printed_chars += printed;
-		}
-	}
+    for (int i = 0; format[i] != '\0'; i++) {
+        if (format[i] == '%') {
+            // Handle format specifiers here
+            // For demonstration, let's consider only %d specifier
+            i++;  // Move past '%'
+            if (format[i] == 'd') {
+                int num = va_arg(args, int);
+                int len = snprintf(buffer + buff_ind, BUFF_SIZE - buff_ind, "%d", num);
+                if (len >= 0)
+                    buff_ind += len;
+                
+                printed_chars += len;
+            }
+            // Add other format specifiers as needed
+        } else {
+            buffer[buff_ind++] = format[i];
+            if (buff_ind == BUFF_SIZE)
+                print_buffer(buffer, &buff_ind);
+            
+            printed_chars++;
+        }
+    }
 
-	print_buffer(buffer, &buff_ind);
+    // Flush remaining buffer
+    print_buffer(buffer, &buff_ind);
 
-	va_end(list);
+    va_end(args);
 
-	return (printed_chars);
+    return printed_chars;
 }
 
-/**
- * print_buffer - Prints the contents of the buffer if it exist
- * @buffer: Array of chars
- * @buff_ind: Index at which to add next char, represents the length.
- */
-void print_buffer(char buffer[], int *buff_ind)
-{
-	if (*buff_ind > 0)
-		write(1, &buffer[0], *buff_ind);
+int main() {
+    my_printf("Hello, %s! The answer is %d.\n", "User", 42);
+    return 0;
+}
 
-	*buff_ind = 0;
+void print_buffer(char buffer[], int *buff_ind) {
+    // Implement the logic to print the buffer or write it to a file
+    // Here, I'm just printing it to the console
+    write(1, buffer, *buff_ind);
+    *buff_ind = 0;  // Reset buffer index
 }
